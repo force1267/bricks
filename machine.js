@@ -9,7 +9,9 @@ if(cluster.isMaster) {
     const SECRET = process.env.SECRET || '0';
 
 
-    var master = null;
+    var master = {
+        ip: null,
+    };
 
     const info = {
         ports: [3000],
@@ -29,10 +31,8 @@ if(cluster.isMaster) {
 
     manager.get("/", (req, res) => {
         if(!master && SECRET === req.body.secret) {
-            
-            master = {
-                ip: req.ip
-            }
+            console.log("master request !")
+            master.ip = req.ip;
             res.json({});
             console.log(`master with ip ${req.ip} registered`)
 
@@ -40,8 +40,7 @@ if(cluster.isMaster) {
             // manager.post("/install/package")
             // manager.post("/install/npm")
 
-            manager.post("/install", (req, res) => {
-                if(!auth(req, res)) return;
+            manager.post("/install", auth, (req, res) => {
                 const { name, javascript } = req.body;
                 fs.writeFile(
                     `./functions/${name}.js`,
@@ -51,8 +50,7 @@ if(cluster.isMaster) {
                 );
             });
 
-            manager.post("/set", (req, res) => {
-                if(!auth(req, res)) return;
+            manager.post("/set", auth, (req, res) => {
                 const { name, number } = req.body;
                 const target = info.workers.filter(w => w.name == name);
                 const now = target.length;
@@ -72,7 +70,7 @@ if(cluster.isMaster) {
                     var diff = number - now;
                     for(var i = 0; i < diff; i++) {
                         var port = 3000;
-                        while(!info.ports.includes(port)) port ++
+                        while(info.ports.includes(port)) port ++
                         cluster.setupMaster({
                             args: [name, port]
                         });
@@ -94,8 +92,7 @@ if(cluster.isMaster) {
                 res.json({});
             });
 
-            manager.get("/info", (req, res) => {
-                if(!auth(req, res)) return;
+            manager.get("/info", auth, (req, res) => {
                 res.json({
                     info: {
                         uptime: process.uptime(),
@@ -107,19 +104,17 @@ if(cluster.isMaster) {
                     }
                 });
             });
-        } else if (auth(req, res)) {
-            res.json({});
         }
     });
     manager.listen(3000);
 
-    function auth(req, res) {
+    function auth(req, res , next) {
         if(req.ip !== master.ip) {
             // TODO
             // report. req is not from master
-            return false;
+            return;
         }
-        return true;
+        next()
     }
 
     // spawn initial workers
@@ -127,7 +122,7 @@ if(cluster.isMaster) {
         const name = process.argv[i];
         const fn = require(`./functions/${name}`);
         var port = 3000;
-        while(!info.ports.includes(port)) port ++
+        while(info.ports.includes(port)) port ++
         cluster.setupMaster({
             args: [name, port]
         });
@@ -185,6 +180,11 @@ if(cluster.isMaster) {
             var t = setTimeout(() => resolve(false), 1000); // what else ?
         }).catch(e=>e)
     }
+
+    if(fn.deploy) {
+        run({deploy: true})
+    }
+
     app.listen(process.argv[3])
 }
 

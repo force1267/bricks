@@ -10,12 +10,11 @@ class Machine {
             username, // "force"
             password, // "*****"
             secret = '0', // "cattycat"
-        },
+        } = {},
         address = "admin:admin:0@localhost:22",
         initialize = true,
 
     }) {
-        this.locations = location ? [{location, capacity}] : locations.map((e, i) => ({location: e, capacity: capacities[i]}));
 
         if (address) {
             const [userpass, hostport] = address.split("@");
@@ -67,16 +66,27 @@ class Machine {
     // ...
 }
 
-const machines = [local];
-// register on localhost
-const local = new Machine({
-    api: master,
-    address: `::${process.env.SECRET}@localhost:22`
-})
 
-module.exports = exports = function master(req, res) {
-    
+const machines = [];
+
+function master(req, res) {
+    if (req.deploy) {
+        // register to localhost
+        console.log("secret", process.env.SECRET)
+        const local = new Machine({
+            api: master,
+            address: `::${process.env.SECRET}@localhost:22`,
+            initialize: false
+        });
+        machines.push(local);
+    } else {
+        res.sendFile(__dirname + "/www/index.html");
+    }
     
 }
-exports.get = "/master"
-exports.post = "/master"
+
+
+module.exports = exports = on = master;
+on.get = "/master";
+on.post = "/master";
+on.deploy = true;

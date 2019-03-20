@@ -11,17 +11,21 @@ module.exports = exports = async function fn(req, res) {
 
 
 // export events and end handler this way after the function
-exports.api = "/main"
 
-exports.now = true
+// run when deploying to a worker 
+exports.deploy = true
 
+// run on http
 exports.get = "/ping"
 exports.post = "/ping"
 
+// run at a time
 exports.every = 1000
 exports.date = Date.now() + 2 * 60 * 1000
 
+// run on db or file events
 exports.db = ""
 exports.file = ""
 
+// before worker dies
 exports.end = function finish() {}

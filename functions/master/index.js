@@ -67,12 +67,16 @@ class Machine {
     // ...
 }
 
+const machines = [local];
+// register on localhost
+const local = new Machine({
+    api: master,
+    address: `::${process.env.SECRET}@localhost:22`
+})
+
 module.exports = exports = function master(req, res) {
-    // register on localhost
-    const local = new Machine({
-        api: master,
-        address: `::${process.env.SECRET}@localhost:22`
-    })
+    
+    
 }
 exports.get = "/master"
 exports.post = "/master"

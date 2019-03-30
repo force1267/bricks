@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "env SECRET=0 node index.js master"
   },
   "dependencies": {
     "body-parser": "^1.18.3",

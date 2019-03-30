@@ -11,7 +11,7 @@ class Machine {
             password, // "*****"
             secret = '0', // "cattycat"
         } = {},
-        address = "admin:admin:0@localhost:22",
+        address = "admin:admin:0@localhost:22", //user:pass:seret@ip:port for ssh
         initialize = true,
 
     }) {
@@ -51,7 +51,7 @@ class Machine {
         const self = this;
         // register using this.connection
         http.get(
-            `http://${host}:3000`, // 3000 is the manager port
+            `http://${host}:3000?secret=${process.env.SECRET}`, // 3000 is the manager port
             res => {
                 if(res.statusCode == 200) {
                     self.manager = true;
@@ -70,9 +70,8 @@ class Machine {
 const machines = [];
 
 function master(req, res) {
-    if (req.deploy) {
+    if (req.spawn) {
         // register to localhost
-        console.log("secret", process.env.SECRET)
         const local = new Machine({
             api: master,
             address: `::${process.env.SECRET}@localhost:22`,
@@ -80,13 +79,13 @@ function master(req, res) {
         });
         machines.push(local);
     } else {
+        // master admin panel
         res.sendFile(__dirname + "/www/index.html");
     }
-    
 }
 
 
 module.exports = exports = on = master;
 on.get = "/master";
 on.post = "/master";
-on.deploy = true;
+on.spawn = true;

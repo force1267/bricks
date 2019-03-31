@@ -83,12 +83,6 @@ if(cluster.isMaster) {
                             db: fn.db,
                             file: fn.file
                         };
-                        w.worker.on("disconnect", e => {
-                            cluster.setupMaster({
-                                args: [name, port]
-                            });
-                            w.worker = cluster.fork();
-                        });
                         info.ports.push(port);
                         info.workers.push(w);
                         diff --
@@ -115,9 +109,7 @@ if(cluster.isMaster) {
 
     function auth(req, res , next) {
         if(req.ip !== master.ip) {
-            // TODO
-            // report. req is not from master
-            return;
+            return console.error(`Unauthorized request to manager from ip ${req.ip}`)
         }
         next()
     }
@@ -129,7 +121,7 @@ if(cluster.isMaster) {
         var port = 3000;
         while(info.ports.includes(port)) port ++
         cluster.setupMaster({
-            args: [name, port]
+            args: [name, port],
         });
         const w = {
             worker: cluster.fork(),
@@ -141,15 +133,17 @@ if(cluster.isMaster) {
             db: fn.db,
             file: fn.file
         };
-        w.worker.on("disconnect", e => {
-            cluster.setupMaster({
-                args: [name, port]
-            });
-            w.worker = cluster.fork();
-        });
         info.ports.push(port);
         info.workers.push(w);
     }
+    cluster.on("exit", (worker, code, signal) => {
+        const w = info.workers.find(w=>w.worker===worker);
+        console.log(`worker ${w.name} with port ${w.port} exited with code ${code} signal ${signal} !`)
+        cluster.setupMaster({
+            args: [w.name, w.port]
+        });
+        w.worker = cluster.fork();
+    });
 
 } else if(cluster.isWorker) {
     console.log(`worker for ${process.argv[2]} is listenig to ${process.argv[3]}`)
@@ -182,6 +176,7 @@ if(cluster.isMaster) {
     fn.post = async function post(route) {}
     fn.db = async function db(route) {}
     fn.file = {get: async function file(route) {}}
+    // TODO use adds MW to using array and here they will be used
     fn.use = async function use(mw) {
         return await new Promise(resolve => {
             mw(fn.arguments[0], fn.arguments[1], () => {
@@ -193,10 +188,14 @@ if(cluster.isMaster) {
     }
 
     if(fn.spawn) {
-        run({spawn: true}, null)
+        // TODO
+        // implement usage controller
+        // and logger
+        fn.spawn();
     }
 
     app.listen(process.argv[3])
+
 }
 
 

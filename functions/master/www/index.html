@@ -5,11 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Bricks admin</title>
+
+    <style>
+        #panel {
+            text-align: left;
+            margin-left: 2%;
+            margin-top: 10%;
+        }
+        #workspace {
+            padding: 2%;
+            margin: 2%;
+            margin-top: 10px;
+            /* border : 1px solid rgb(61, 17, 97); */
+            border : 1px solid rgb(0, 0, 0);
+            border-radius: 10px;
+        }
+        input[type=button] {
+            background-color: rgb(255, 255, 255);
+            width: 10%;
+            /* border: 1px solid rgb(61, 17, 97); */
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 10px;
+            /* color: rgb(117, 62, 161); */
+            color: rgb(0, 0, 0);
+            padding-top: 1%;
+            padding-bottom: 1%;
+            text-decoration: none;
+            margin-right: 1%;
+            cursor: pointer;
+        }
+        input:hover {
+            transition-duration: 180ms;
+            background-color: rgb(210, 210, 210);
+        }
+        h3 {
+            /* color: rgb(69, 32, 94); */
+            font-family: verdana;
+            font-size: 100%;
+        }
+        h1 {
+            /* color: rgb(69, 32, 94); */
+            font-family: verdana;
+            font-size: 150%;
+        }
+        body {
+            background-color: rgb(255, 255, 255);
+        }
+    </style>
 </head>
 <body>
-    hi !
+    <!-- initial script -->
+    <script>    
+        const pageInitFunctions = {};
+        var currentPage = "dashboard";
+        var on = { pageLoad() {}, run(fn) { this[fn]() } }
+        function openPage(name) {
+            document.getElementById(`page.${currentPage}`).hidden = true;
+            currentPage = name;
+            document.getElementById(`page.loading`).hidden = false;
+            on.pageLoad = function loaded() {
+                document.getElementById(`page.loading`).hidden = true;
+                document.getElementById(`page.${name}`).hidden = false;
+            }
+            pageInitFunctions[name](e => on.run("pageLoad"));
+        }
+
+        function logout() {}
+    </script>
+
+    <div id="panel">
+        <!-- panel buttons -->
+        <input type="button" value="dashboard" id="button.open.dashboard" onclick="openPage('dashboard')" />
+        <input type="button" value="logout" id="button.logout" onclick="logout()" />
+        <input type="button" value="user" id="button.open.user" onclick="openPage('user')" />
+        <input type="button" value="machines" id="button.open.machines" onclick="openPage('machines')" />
+        <input type="button" value="add machine" id="button.add.machine" onclick="openPage('add.machine')"/>
+    </div>
+
+    <div id="workspace">
+        <!-- app pages -->
+        
+        <div class="page" id="page.dashboard" hidden>
+            <h3>Dashboard</h3>
+
+            <script>
+                pageInitFunctions.dashboard = function initDashboard(cb) {
+                    cb();
+                }
+            </script>
+        </div>
+
+        <div class="page" id="page.machines" hidden>
+            <h3>Machines</h3>
+            <script>
+                pageInitFunctions.machines = function initMachines(cb) {
+                    cb();
+                }
+            </script>
+        </div>
+        <div class="page" id="page.add.machine" hidden>
+            <h3>Add a machine</h3>
+            <script>
+                pageInitFunctions["add.machine"] = function initAddMachine(cb) {
+                    cb();
+                }
+            </script>
+        </div>
+        <div class="page" id="page.user" hidden>
+            <h3>User</h3>
+            
+            <script>
+                pageInitFunctions.user = function initUser(cb) {
+                    setTimeout(e=>cb(), 1000);
+                }
+            </script>
+        </div>
+
+        <!-- loading widget -->
+        <div class="page" id="page.loading" hidden>
+            <h1>Loading ...</h1>
+        </div>
+    </div>
+    <!-- onload scripts -->
     <script>
-        const a = 12;
+        openPage("dashboard");
     </script>
 </body>
 </html>

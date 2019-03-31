@@ -70,17 +70,19 @@ class Machine {
 const machines = [];
 
 function master(req, res) {
-    if (req.spawn) {
-        // register to localhost
-        const local = new Machine({
-            api: master,
-            address: `::${process.env.SECRET}@localhost:22`,
-            initialize: false
-        });
-        machines.push(local);
-    } else {
-        // master admin panel
-        res.sendFile(__dirname + "/www/index.html");
+    if(req.method == "GET") {
+        switch(req.query.route) {
+            case "info":
+            http
+            break;
+            case undefined:
+            // master admin panel
+            return res.sendFile(__dirname + "/www/index.html");
+        }
+    } else if (req.method == "POST") {
+        switch(req.body.route) {
+
+        }
     }
 }
 
@@ -88,4 +90,15 @@ function master(req, res) {
 module.exports = exports = on = master;
 on.get = "/master";
 on.post = "/master";
-on.spawn = true;
+on.spawn = function spawn() {
+    // register to localhost
+    const local = new Machine({
+        api: master,
+        address: `::${process.env.SECRET}@localhost:22`,
+        initialize: false
+    });
+    machines.push(local); 
+
+    // load local json db if exists
+    // make if not
+} 

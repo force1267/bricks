@@ -58,7 +58,7 @@ connect using master's dashboard
 #### when should you use this ?
 almost never !
 this project is an expriement on clustering and serverless architechture
-and it's suitable for security critical environments.
+and it's not suitable for security critical environments.
 see kubeless.io
 
 ## pre alpha !

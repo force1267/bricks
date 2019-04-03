@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "env SECRET=0 node index.js master"
+    "test": "SECRET=0 node index.js master"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "http-proxy": "^1.17.0",
+    "request": "^2.88.0"
   }
 }

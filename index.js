@@ -188,7 +188,7 @@ if(cluster.isMaster) {
     // like get and post on diffrent processes
     if(fn.get) {
         const app = express();
-        for(const mw of fn.using) {
+        if(fn.using) for(const mw of fn.using) {
             app.use(mw);
         }
         app.all("/", fn);

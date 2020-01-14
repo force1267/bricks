@@ -62,7 +62,7 @@ class Machine {
         });
     }
     rename(name, cb) {
-        const { name, connection: { host, port } } = this;
+        const { connection: { host, port } } = this;
         const self = this;
         // register using this.connection
         console.log("master here ! were posting a rename boy !")
